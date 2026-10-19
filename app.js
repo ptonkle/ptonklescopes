@@ -181,12 +181,11 @@ function renderPage() {
   const sub = {
     league: `Patch ${patch.split('.').slice(0, 2).join('.')}`,
     tft: `Set ${TFT_SET.number} · ${TFT_SET.name}`,
-    factorio: 'Space Age',
   }[mode];
   main.innerHTML = `
     <div class="page-head">
       <h1>${esc(MODES[mode].label)}</h1>
-      <p class="dateline">${esc(date)} <span class="sep">·</span> ${esc(sub)}</p>
+      <p class="dateline">${esc(date)}${sub ? ` <span class="sep">·</span> ${esc(sub)}` : ''}</p>
     </div>
     <ol class="grid">
       ${SIGNS.map((s, i) => `
