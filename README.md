@@ -1,6 +1,6 @@
 # Ptonklescopes
 
-Daily League of Legends and TFT horoscopes. Static site, no build step.
+Daily horoscopes for the games you play. Static site, no build step.
 
 - `index.html`, `styles.css`, `app.js`: the site. Four styles live in `styles.css`, switched by `<html data-theme>`.
 - `texts.js`: all horoscope copy.
