@@ -1,12 +1,31 @@
-import { DDRAGON, TFT_SET, CHAMPIONS, TRAITS } from './data.js';
+import { DDRAGON, TFT_SET, CHAMPIONS, KEYSTONES, TRAITS } from './data.js';
 import { SIGNS, SIGN_LINES, LOL, TFT } from './texts.js';
 
 const MODES = {
   league: { label: 'League of Legends', read: leagueReading },
   tft: { label: 'Teamfight Tactics', read: tftReading },
 };
-const THEMES = ['tarot', 'paper', 'neon', 'dusk'];
 const TEXT_GLYPH = '︎'; // keep zodiac glyphs as text, not emoji
+
+// Baked-in champions, replaced by the live Data Dragon list when it loads,
+// so new champions show up without a rebuild.
+let champions = CHAMPIONS;
+let patch = DDRAGON;
+
+async function loadLiveChampions() {
+  try {
+    const versions = await (await fetch('https://ddragon.leagueoflegends.com/api/versions.json')).json();
+    if (versions[0] === DDRAGON) return;
+    const data = (await (await fetch(`https://ddragon.leagueoflegends.com/cdn/${versions[0]}/data/en_US/champion.json`)).json()).data;
+    champions = Object.values(data)
+      .map((c) => ({ id: c.id, name: c.name, title: c.title, tags: c.tags }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+    patch = versions[0];
+    if (reveal.hidden) renderPage();
+  } catch {
+    // Offline or blocked: keep the baked list.
+  }
+}
 
 // --- Seeded randomness: same reading for everyone, all day ---
 
@@ -54,17 +73,20 @@ function dailyDraw(mode, pool) {
 function leagueReading(i) {
   const sign = SIGNS[i];
   const r = rng(`${dayKey()}|league|${sign.key}`);
-  const champ = dailyDraw('league', CHAMPIONS)[i];
+  const champ = dailyDraw('league', champions)[i];
+  const tag = champ.tags[0] in LOL.champ ? champ.tags[0] : 'Fighter';
+  const fits = KEYSTONES.filter((k) => LOL.keystones[tag].includes(k.key));
+  const rune = pick(r, fits.length ? fits : KEYSTONES);
   return {
     headline: pick(r, LOL.headlines),
     lines: [
       pick(r, SIGN_LINES[sign.key]),
-      pick(r, LOL.champ[champ.tags[0]] || LOL.champ.Fighter).replace('{champ}', champ.name),
+      pick(r, LOL.champ[tag]).replace('{champ}', champ.name),
+      LOL.keystone[rune.key] || LOL.keystoneAny.replace('{rune}', rune.name),
       pick(r, LOL.game),
     ],
     advice: pick(r, LOL.advice),
     lucky: [
-      ['Lane', pick(r, LOL.lanes[champ.tags[0]] || LOL.lanes.Fighter)],
       ['Item', pick(r, LOL.items)],
       ['Avoid', pick(r, LOL.avoid)],
     ],
@@ -74,6 +96,7 @@ function leagueReading(i) {
       label: 'Ascending champion',
       name: champ.name,
       sub: champ.title,
+      rune,
     },
   };
 }
@@ -87,7 +110,7 @@ function tftReading(i) {
     headline: pick(r, TFT.headlines),
     lines: [
       pick(r, SIGN_LINES[sign.key]),
-      TFT.trait[trait.name],
+      TFT.trait[trait.name] ? pick(r, TFT.trait[trait.name]) : pick(r, TFT.traitAny).replace('{trait}', trait.name),
       pick(r, TFT.carry).replace('{unit}', unit.name),
       pick(r, TFT.game),
     ],
@@ -127,7 +150,7 @@ function renderPage() {
     a.toggleAttribute('aria-current', a.dataset.mode === mode);
   }
   const date = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
-  const sub = mode === 'tft' ? `Set ${TFT_SET.number} · ${TFT_SET.name}` : `Patch ${DDRAGON.split('.').slice(0, 2).join('.')}`;
+  const sub = mode === 'tft' ? `Set ${TFT_SET.number} · ${TFT_SET.name}` : `Patch ${patch.split('.').slice(0, 2).join('.')}`;
   main.innerHTML = `
     <div class="page-head">
       <h1>${esc(MODES[mode].label)}</h1>
@@ -149,6 +172,7 @@ function readingHTML(sign, rd) {
     ? `<figure class="art portrait">
          <img src="${esc(a.src)}" alt="${esc(a.name)}">
          <figcaption><small>${esc(a.label)}</small><strong>${esc(a.name)}</strong><em>${esc(a.sub)}</em></figcaption>
+         <div class="rune"><img src="${esc(a.rune.icon)}" alt=""><span><small>Keystone</small><b>${esc(a.rune.name)}</b></span></div>
        </figure>`
     : `<figure class="art banner">
          <figcaption>
@@ -230,19 +254,5 @@ reveal.addEventListener('click', (e) => {
 addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
 addEventListener('hashchange', () => { reveal.hidden = true; document.body.classList.remove('locked'); renderPage(); });
 
-// --- Themes ---
-
-function setTheme(t) {
-  document.documentElement.dataset.theme = t;
-  for (const b of document.querySelectorAll('.themes button')) b.setAttribute('aria-pressed', b.dataset.theme === t);
-  try { localStorage.setItem('theme', t); } catch {}
-}
-document.querySelector('.themes').addEventListener('click', (e) => {
-  const b = e.target.closest('button');
-  if (b) setTheme(b.dataset.theme);
-});
-let saved = null;
-try { saved = localStorage.getItem('theme'); } catch {}
-setTheme(THEMES.includes(saved) ? saved : 'tarot');
-
 renderPage();
+loadLiveChampions();
