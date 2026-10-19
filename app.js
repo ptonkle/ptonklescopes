@@ -1,9 +1,11 @@
 import { DDRAGON, TFT_SET, CHAMPIONS, KEYSTONES, TRAITS } from './data.js';
-import { SIGNS, LOL, TFT } from './texts.js';
+import { FACTORIO_ITEMS, FACTORIO_TECHS } from './factorio.js';
+import { SIGNS, LOL, TFT, FACTORIO } from './texts.js';
 
 const MODES = {
   league: { label: 'League of Legends', read: leagueReading },
   tft: { label: 'Teamfight Tactics', read: tftReading },
+  factorio: { label: 'Factorio', read: factorioReading },
 };
 const TEXT_GLYPH = '︎'; // keep zodiac glyphs as text, not emoji
 
@@ -100,6 +102,34 @@ function leagueReading(i) {
   };
 }
 
+function factorioReading(i) {
+  const sign = SIGNS[i];
+  const r = rng(`${dayKey()}|factorio|${sign.key}`);
+  const item = dailyDraw('factorio', FACTORIO_ITEMS)[i];
+  const tech = pick(r, FACTORIO_TECHS);
+  const [wisdom, motto] = shuffled(r, FACTORIO.wisdom);
+  return {
+    headline: pick(r, FACTORIO.headlines),
+    lines: [
+      pick(r, FACTORIO.item[item.category]).replace('{item}', item.name),
+      pick(r, FACTORIO.session),
+      wisdom,
+    ],
+    advice: motto,
+    lucky: [
+      ['Research next', tech.name, tech.icon],
+      ['Avoid', pick(r, FACTORIO.avoid)],
+    ],
+    art: {
+      kind: 'icon',
+      src: item.icon,
+      label: 'Ascending item',
+      name: item.name,
+      sub: FACTORIO.categories[item.category],
+    },
+  };
+}
+
 function tftReading(i) {
   const sign = SIGNS[i];
   const r = rng(`${dayKey()}|tft|${sign.key}`);
@@ -148,7 +178,11 @@ function renderPage() {
     a.toggleAttribute('aria-current', a.dataset.mode === mode);
   }
   const date = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
-  const sub = mode === 'tft' ? `Set ${TFT_SET.number} · ${TFT_SET.name}` : `Patch ${patch.split('.').slice(0, 2).join('.')}`;
+  const sub = {
+    league: `Patch ${patch.split('.').slice(0, 2).join('.')}`,
+    tft: `Set ${TFT_SET.number} · ${TFT_SET.name}`,
+    factorio: 'Space Age',
+  }[mode];
   main.innerHTML = `
     <div class="page-head">
       <h1>${esc(MODES[mode].label)}</h1>
@@ -166,7 +200,12 @@ function renderPage() {
 
 function readingHTML(sign, rd) {
   const a = rd.art;
-  const figure = a.kind === 'portrait'
+  const figure = a.kind === 'icon'
+    ? `<figure class="art icon">
+         <div class="icon-frame"><img src="${esc(a.src)}" alt="${esc(a.name)}"></div>
+         <figcaption><small>${esc(a.label)}</small><strong>${esc(a.name)}</strong><em>${esc(a.sub)}</em></figcaption>
+       </figure>`
+    : a.kind === 'portrait'
     ? `<figure class="art portrait">
          <img src="${esc(a.src)}" alt="${esc(a.name)}">
          <figcaption><small>${esc(a.label)}</small><strong>${esc(a.name)}</strong><em>${esc(a.sub)}</em></figcaption>
@@ -193,7 +232,7 @@ function readingHTML(sign, rd) {
         <h3>${esc(rd.headline)}</h3>
         ${rd.lines.map((l) => `<p>${esc(l)}</p>`).join('')}
         <p class="advice">${esc(rd.advice)}</p>
-        <dl class="lucky">${rd.lucky.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>
+        <dl class="lucky">${rd.lucky.map(([k, v, icon]) => `<div><dt>${esc(k)}</dt><dd>${icon ? `<img src="${esc(icon)}" alt="">` : ''}${esc(v)}</dd></div>`).join('')}</dl>
       </div>
     </div>`;
 }

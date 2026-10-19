@@ -7,6 +7,9 @@ Daily horoscopes for the games you play. Static site, no build step.
 - `data.js`: generated champion, keystone and TFT trait data. Regenerate with
   `curl -o /tmp/tft.json https://raw.communitydragon.org/latest/cdragon/tft/en_us.json && python3 -I tools/build_data.py /tmp/tft.json`.
   It picks the newest TFT set automatically; add the set's name to `SET_NAMES`.
+- `factorio.js`: generated Factorio items and research (base game and Space Age), with icons from the official wiki.
+  Regenerate with `python3 -I tools/build_factorio.py` after a Factorio update.
+- Each mode can restyle the whole page: see the `body[data-mode="factorio"]` rules in `styles.css`.
 - New League champions need no rebuild: the page loads the live champion list from Data Dragon.
 - A new TFT set's traits use generic lines (`TFT.traitAny`) until their own lines are written in `texts.js`.
 
