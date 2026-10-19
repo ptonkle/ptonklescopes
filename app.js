@@ -1,5 +1,5 @@
 import { DDRAGON, TFT_SET, CHAMPIONS, KEYSTONES, TRAITS } from './data.js';
-import { SIGNS, SIGN_LINES, LOL, TFT } from './texts.js';
+import { SIGNS, LOL, TFT } from './texts.js';
 
 const MODES = {
   league: { label: 'League of Legends', read: leagueReading },
@@ -80,9 +80,8 @@ function leagueReading(i) {
   return {
     headline: pick(r, LOL.headlines),
     lines: [
-      pick(r, SIGN_LINES[sign.key]),
       pick(r, LOL.champ[tag]).replace('{champ}', champ.name),
-      LOL.keystone[rune.key] || LOL.keystoneAny.replace('{rune}', rune.name),
+      LOL.keystone[rune.key] ? pick(r, LOL.keystone[rune.key]) : LOL.keystoneAny.replace('{rune}', rune.name),
       pick(r, LOL.game),
     ],
     advice: pick(r, LOL.advice),
@@ -109,7 +108,6 @@ function tftReading(i) {
   return {
     headline: pick(r, TFT.headlines),
     lines: [
-      pick(r, SIGN_LINES[sign.key]),
       TFT.trait[trait.name] ? pick(r, TFT.trait[trait.name]) : pick(r, TFT.traitAny).replace('{trait}', trait.name),
       pick(r, TFT.carry).replace('{unit}', unit.name),
       pick(r, TFT.game),
