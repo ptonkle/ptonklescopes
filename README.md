@@ -1,4 +1,4 @@
-# Rift Signs
+# Ptonklescopes
 
 Daily League of Legends and TFT horoscopes. Static site, no build step.
 
