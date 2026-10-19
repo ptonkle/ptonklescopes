@@ -1,0 +1,257 @@
+/* Four styles, switched by <html data-theme>. Shared layout first, then each theme. */
+
+:root {
+  --bg: #0b1426;
+  --ink: #e9e3d0;
+  --muted: #9aa4b8;
+  --accent: #c8a24a;
+  --accent-2: #3fd1c4;
+  --card: #111d36;
+  --card-ink: var(--ink);
+  --line: #c8a24a66;
+  --panel: #0e1930;
+  --radius: 6px;
+  --head-font: 'Cinzel', serif;
+  --body-font: 'Cormorant Garamond', serif;
+  --body-size: 1.2rem;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--body-font);
+  font-size: var(--body-size);
+  line-height: 1.5;
+}
+body.locked { overflow: hidden; }
+button { font: inherit; color: inherit; }
+
+/* Toolbar */
+.bar {
+  display: flex; align-items: center; gap: 24px;
+  padding: 14px max(16px, calc((100vw - 1100px) / 2));
+  border-bottom: 1px solid var(--line);
+}
+.brand {
+  font-family: var(--head-font); font-size: 1.4rem; font-weight: 700;
+  color: var(--accent); text-decoration: none; letter-spacing: .04em;
+}
+.modes { display: flex; gap: 6px; }
+.modes a {
+  font-family: var(--head-font); color: var(--muted); text-decoration: none;
+  padding: 6px 14px; border-radius: var(--radius); border: 1px solid transparent;
+}
+.modes a:hover { color: var(--ink); }
+.modes a[aria-current] { color: var(--ink); border-color: var(--line); }
+.themes { margin-left: auto; display: flex; gap: 8px; }
+.themes button {
+  width: 22px; height: 22px; border-radius: 50%; padding: 0; cursor: pointer;
+  border: 2px solid transparent; outline: 1px solid var(--line);
+}
+.themes button[aria-pressed="true"] { border-color: var(--ink); }
+.themes [data-theme="tarot"] { background: conic-gradient(#0b1426 0 50%, #c8a24a 0 75%, #3fd1c4 0); }
+.themes [data-theme="paper"] { background: conic-gradient(#f1ead8 0 50%, #1a1a1a 0 75%, #b3261e 0); }
+.themes [data-theme="neon"] { background: conic-gradient(#07050d 0 50%, #ff3fa4 0 75%, #8f5bff 0); }
+.themes [data-theme="dusk"] { background: linear-gradient(#2b2350, #8b5e8a, #f0b08e); }
+
+/* Page */
+main { max-width: 1100px; margin: 0 auto; padding: 32px 16px 64px; }
+.page-head { text-align: center; margin-bottom: 28px; }
+.page-head h1 { font-family: var(--head-font); font-weight: 700; margin: 0; font-size: clamp(1.8rem, 4vw, 2.8rem); }
+.dateline { margin: 4px 0 0; color: var(--muted); }
+.dateline .sep { color: var(--accent); }
+
+.grid {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px;
+}
+@media (max-width: 760px) { .grid { grid-template-columns: repeat(3, 1fr); gap: 12px; } }
+@media (max-width: 480px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+
+.sign {
+  width: 100%; aspect-ratio: 4 / 3; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  background: var(--card); color: var(--card-ink);
+  border: 1px solid var(--line); border-radius: var(--radius);
+  transition: transform .2s, box-shadow .2s, border-color .2s;
+}
+.sign:hover, .sign:focus-visible { transform: translateY(-3px); outline: none; }
+.sign .glyph { font-size: clamp(2.4rem, 7vw, 4rem); line-height: 1; color: var(--accent); font-family: 'Segoe UI Symbol', 'Noto Sans Symbols', serif; }
+.sign .name { font-family: var(--head-font); font-size: clamp(1rem, 2.4vw, 1.35rem); font-weight: 700; margin-top: 10px; }
+.sign .dates { font-size: .85rem; color: var(--muted); }
+
+/* Expanded reading */
+#reveal {
+  position: fixed; inset: 0; z-index: 10;
+  display: grid; place-items: center;
+  background: color-mix(in srgb, var(--bg) 75%, transparent);
+  backdrop-filter: blur(4px);
+  animation: fade .3s both;
+}
+#reveal[hidden] { display: none; }
+#reveal.closing { animation: fade .3s reverse both; }
+@keyframes fade { from { opacity: 0; } }
+.panel {
+  position: relative; transform-origin: top left;
+  width: min(1040px, calc(100vw - 32px)); height: min(820px, calc(100vh - 48px));
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+  overflow: hidden;
+}
+.content { height: 100%; overflow-y: auto; padding: 28px clamp(18px, 4vw, 44px) 36px; }
+.close {
+  position: absolute; top: 10px; right: 14px; z-index: 2;
+  width: 40px; height: 40px; border: 0; background: none; cursor: pointer;
+  font-size: 2rem; line-height: 1; color: var(--muted);
+}
+.close:hover { color: var(--ink); }
+
+.reading-head { display: flex; align-items: center; gap: 18px; margin-bottom: 22px; }
+.reading-head .glyph { font-size: 4rem; line-height: 1; color: var(--accent); font-family: 'Segoe UI Symbol', 'Noto Sans Symbols', serif; }
+.reading-head h2 { margin: 0; font-family: var(--head-font); font-size: clamp(2rem, 5vw, 3rem); line-height: 1; }
+.reading-head .dates { margin: 6px 0 0; color: var(--muted); }
+
+.reading-body { display: grid; grid-template-columns: 300px 1fr; gap: clamp(20px, 4vw, 44px); align-items: start; }
+body[data-mode="tft"] .reading-body { grid-template-columns: 240px 1fr; }
+@media (max-width: 720px) { .reading-body, body[data-mode="tft"] .reading-body { grid-template-columns: 1fr; } }
+
+.art { margin: 0; }
+.art.portrait img { display: block; width: 100%; aspect-ratio: 308 / 560; object-fit: cover; border-radius: var(--radius); border: 1px solid var(--line); }
+@media (max-width: 720px) { .art.portrait img { aspect-ratio: 4 / 3; object-position: 50% 15%; } }
+.art figcaption { display: flex; flex-direction: column; margin-top: 10px; }
+.art small { text-transform: uppercase; letter-spacing: .14em; font-size: .7rem; color: var(--accent); }
+.art strong { font-family: var(--head-font); font-size: 1.5rem; line-height: 1.2; }
+.art em { color: var(--muted); }
+
+.art.banner { position: relative; }
+.splash { display: block; width: 100%; height: clamp(180px, 32vh, 300px); object-fit: cover; object-position: 50% 25%; border-radius: var(--radius); border: 1px solid var(--line); margin-bottom: 22px; }
+.art.banner figcaption { flex-direction: row; align-items: center; gap: 14px; margin-top: 0; }
+.art.banner span { display: flex; flex-direction: column; }
+.trait-icon { width: 56px; height: 56px; padding: 8px; border-radius: 50%; background: #111; border: 2px solid var(--accent); }
+.units { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 0; padding: 0; }
+.units li { width: 44px; height: 44px; border-radius: 4px; overflow: hidden; border: 2px solid #888; }
+.units li.cost-2 { border-color: #1fae5b; }
+.units li.cost-3 { border-color: #2f86e6; }
+.units li.cost-4 { border-color: #b63fd9; }
+.units li.cost-5 { border-color: #f0b52a; }
+.units img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.words h3 { font-family: var(--head-font); font-size: clamp(1.4rem, 3vw, 2rem); margin: 0 0 14px; line-height: 1.2; }
+.words p { margin: 0 0 12px; }
+.words .advice { font-style: italic; color: var(--accent); font-size: 1.1em; margin-top: 18px; }
+.lucky { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 24px 0 0; padding-top: 18px; border-top: 1px solid var(--line); }
+@media (max-width: 480px) { .lucky { grid-template-columns: 1fr; } }
+.lucky dt { text-transform: uppercase; letter-spacing: .14em; font-size: .7rem; color: var(--muted); }
+.lucky dd { margin: 2px 0 0; font-weight: 600; }
+
+/* ---------- Hextech tarot ---------- */
+[data-theme="tarot"] body {
+  background:
+    radial-gradient(ellipse at 50% -10%, #1d3a5c 0%, transparent 60%),
+    #0b1426;
+}
+[data-theme="tarot"] .sign {
+  background: linear-gradient(170deg, #15264a, #0c162c);
+  outline: 1px solid #c8a24a33; outline-offset: -8px;
+}
+[data-theme="tarot"] .sign:hover, [data-theme="tarot"] .sign:focus-visible {
+  border-color: var(--accent-2);
+  box-shadow: 0 0 24px #3fd1c455, inset 0 0 30px #3fd1c41a;
+}
+[data-theme="tarot"] .sign .glyph { text-shadow: 0 0 18px #c8a24a66; }
+[data-theme="tarot"] .panel { box-shadow: 0 0 60px #3fd1c42a; outline: 1px solid #c8a24a33; outline-offset: -10px; }
+[data-theme="tarot"] .art img, [data-theme="tarot"] .splash { box-shadow: 0 0 30px #3fd1c433; }
+
+/* ---------- Newspaper ---------- */
+[data-theme="paper"] {
+  --bg: #f1ead8; --ink: #1a1a1a; --muted: #5b5548; --accent: #b3261e; --accent-2: #1a1a1a;
+  --card: transparent; --line: #1a1a1a; --panel: #f6f0e0; --radius: 0;
+  --head-font: 'Playfair Display', serif; --body-font: 'Old Standard TT', serif; --body-size: 1.05rem;
+}
+[data-theme="paper"] body {
+  background:
+    repeating-linear-gradient(0deg, #0000 0 3px, #0000000a 3px 4px),
+    #f1ead8;
+}
+[data-theme="paper"] .bar { flex-wrap: wrap; justify-content: center; border-bottom: 4px double #1a1a1a; }
+[data-theme="paper"] .brand { order: -1; flex-basis: 100%; text-align: center; color: #1a1a1a; font-size: clamp(2.2rem, 7vw, 3.8rem); font-weight: 900; letter-spacing: -.01em; }
+[data-theme="paper"] .modes a { font-style: italic; text-transform: uppercase; letter-spacing: .1em; font-size: .9rem; }
+[data-theme="paper"] .modes a[aria-current] { border-color: transparent; border-bottom: 2px solid var(--accent); }
+[data-theme="paper"] .themes { margin-left: 0; }
+[data-theme="paper"] .page-head h1 { font-style: italic; }
+[data-theme="paper"] .grid { gap: 0; border-top: 1px solid #1a1a1a; border-left: 1px solid #1a1a1a; }
+[data-theme="paper"] .sign { border: 0; border-right: 1px solid #1a1a1a; border-bottom: 1px solid #1a1a1a; }
+[data-theme="paper"] .sign:hover, [data-theme="paper"] .sign:focus-visible { transform: none; background: #e6dcc3; }
+[data-theme="paper"] .sign .glyph {
+  width: 1.7em; height: 1.7em; display: grid; place-items: center; font-size: clamp(1.6rem, 4.5vw, 2.4rem);
+  border: 2px solid var(--accent); border-radius: 50%; transform: rotate(-6deg);
+}
+[data-theme="paper"] .sign .name { text-transform: uppercase; letter-spacing: .06em; }
+[data-theme="paper"] .panel { border: 2px solid #1a1a1a; box-shadow: 8px 8px 0 #1a1a1a; }
+[data-theme="paper"] .reading-head { border-bottom: 4px double #1a1a1a; padding-bottom: 14px; }
+[data-theme="paper"] .words p:first-of-type { display: flow-root; }
+[data-theme="paper"] .art img, [data-theme="paper"] .splash { filter: grayscale(1) contrast(1.25) sepia(.15); }
+[data-theme="paper"] .trait-icon { background: #1a1a1a; border-color: #1a1a1a; }
+[data-theme="paper"] .words h3 { font-style: italic; }
+[data-theme="paper"] .words p:first-of-type::first-letter { float: left; font-family: var(--head-font); font-size: 3.4em; line-height: .85; padding: 4px 6px 0 0; }
+[data-theme="paper"] .advice { color: var(--ink); border-left: 3px solid var(--accent); padding-left: 12px; }
+
+/* ---------- Neon mystic ---------- */
+[data-theme="neon"] {
+  --bg: #07050d; --ink: #f4e9ff; --muted: #a294b8; --accent: #ff3fa4; --accent-2: #8f5bff;
+  --card: #0f0a1a; --line: #8f5bff55; --panel: #0c0815; --radius: 14px;
+  --head-font: 'Righteous', sans-serif; --body-font: 'Space Grotesk', sans-serif; --body-size: 1.02rem;
+}
+[data-theme="neon"] body {
+  background:
+    radial-gradient(circle at 15% 10%, #8f5bff22, transparent 40%),
+    radial-gradient(circle at 85% 90%, #ff3fa41c, transparent 40%),
+    #07050d;
+}
+[data-theme="neon"] .brand { text-shadow: 0 0 8px #ff3fa4, 0 0 22px #ff3fa488; }
+[data-theme="neon"] .page-head h1 { color: #fff; text-shadow: 0 0 10px #8f5bff, 0 0 30px #8f5bff99; }
+[data-theme="neon"] .sign { box-shadow: inset 0 0 0 1px #8f5bff33; }
+[data-theme="neon"] .sign .glyph { color: #ffd6ec; text-shadow: 0 0 6px #ff3fa4, 0 0 18px #ff3fa4, 0 0 40px #ff3fa4aa; }
+[data-theme="neon"] .sign:hover, [data-theme="neon"] .sign:focus-visible {
+  border-color: #ff3fa4; box-shadow: 0 0 18px #ff3fa466, inset 0 0 18px #ff3fa422;
+}
+[data-theme="neon"] .sign:hover .glyph { animation: flicker 1.4s steps(1) 1; }
+@keyframes flicker { 10%, 30% { opacity: .35; } 20%, 40% { opacity: 1; } }
+[data-theme="neon"] .panel { border-color: #ff3fa4; box-shadow: 0 0 40px #ff3fa455, 0 0 120px #8f5bff33; }
+[data-theme="neon"] .reading-head .glyph { color: #ffd6ec; text-shadow: 0 0 8px #ff3fa4, 0 0 26px #ff3fa4; }
+[data-theme="neon"] .art img, [data-theme="neon"] .splash { border-color: #8f5bff; box-shadow: 0 0 24px #8f5bff66; }
+[data-theme="neon"] .words h3 { color: #fff; text-shadow: 0 0 12px #8f5bffaa; }
+[data-theme="neon"] .advice { text-shadow: 0 0 10px #ff3fa488; }
+
+/* ---------- Celestial watercolor ---------- */
+[data-theme="dusk"] {
+  --bg: #2b2350; --ink: #fbf3ee; --muted: #e3cfe0; --accent: #ffd7b0; --accent-2: #ffffff;
+  --card: #ffffff12; --line: #ffffff33; --panel: #3a2c5cf2; --radius: 22px;
+  --head-font: 'Fraunces', serif; --body-font: 'Quicksand', sans-serif; --body-size: 1.02rem;
+}
+[data-theme="dusk"] body {
+  background:
+    radial-gradient(1px 1px at 12% 18%, #fff, transparent),
+    radial-gradient(1px 1px at 28% 62%, #fffc, transparent),
+    radial-gradient(1.5px 1.5px at 44% 12%, #fff, transparent),
+    radial-gradient(1px 1px at 63% 38%, #fffa, transparent),
+    radial-gradient(1.5px 1.5px at 78% 22%, #fff, transparent),
+    radial-gradient(1px 1px at 88% 56%, #fffb, transparent),
+    radial-gradient(1px 1px at 8% 80%, #fff9, transparent),
+    radial-gradient(1px 1px at 52% 84%, #fff8, transparent),
+    linear-gradient(170deg, #241d47 0%, #4b3570 40%, #8b5e8a 72%, #f0b08e 100%);
+  background-attachment: fixed;
+}
+[data-theme="dusk"] .brand { font-style: italic; font-weight: 500; color: var(--ink); }
+[data-theme="dusk"] .page-head h1, [data-theme="dusk"] .reading-head h2, [data-theme="dusk"] .words h3 { font-style: italic; font-weight: 300; }
+[data-theme="dusk"] .modes a[aria-current] { border-radius: 999px; background: #ffffff1a; border-color: transparent; }
+[data-theme="dusk"] .sign { backdrop-filter: blur(6px); }
+[data-theme="dusk"] .sign .glyph { color: #fff; font-weight: 200; text-shadow: 0 0 20px #ffd7b088; }
+[data-theme="dusk"] .sign .name { font-style: italic; font-weight: 300; }
+[data-theme="dusk"] .sign:hover, [data-theme="dusk"] .sign:focus-visible { background: #ffffff22; box-shadow: 0 10px 40px #1a103866; }
+[data-theme="dusk"] #reveal { background: #1a103855; }
+[data-theme="dusk"] .panel { backdrop-filter: blur(18px); box-shadow: 0 30px 80px #1a103888; }
+[data-theme="dusk"] .art img, [data-theme="dusk"] .splash { border: 0; box-shadow: 0 12px 40px #1a103877; }
+[data-theme="dusk"] .trait-icon { background: #2b2350; border-color: #ffd7b0; }
