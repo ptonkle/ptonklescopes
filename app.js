@@ -198,6 +198,9 @@ function pokemonReading(i) {
       ['Avoid', pick(r, POKE.avoid)],
     ],
     art: { kind: 'dex', mon, leader },
+  };
+}
+
 function idleReading(i) {
   const sign = SIGNS[i];
   const r = rng(`${dayKey()}|idle|${sign.key}`);

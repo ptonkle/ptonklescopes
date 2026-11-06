@@ -3148,6 +3148,9 @@ export const POKE = {
     "the Union Room at this hour",
     "the Pokéathlon when you are tired",
     "a Trick from a Pokémon holding a Choice Scarf",
+  ],
+};
+
 export const IDLE = {
   headlines: [
     "The XP bar moves in your favor.",
