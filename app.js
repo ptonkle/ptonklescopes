@@ -282,12 +282,7 @@ function idlePrestige() {
 // The game's own pill, in its "★{n} {x}" format.
 const prestigePill = (n) => `<div class="pill pres">★${n} ×${n.toFixed(2)}</div>`;
 
-function idleHead(now = new Date()) {
-  const minutes = now.getHours() * 60 + now.getMinutes();
-  const date = now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
-  return `<span class="idle-tags">${prestigePill(idlePrestige())}<span class="tag xp">${esc(date)}</span></span>
-    <div class="xp-bar"><i style="width:${(minutes / 1440) * 100}%"></i><span><b>Time away</b><b>${Math.floor(minutes / 60)}h ${minutes % 60}m / 24h 0m</b></span></div>
-    <div class="idle-scene">
+const idleScene = () => `<div class="idle-scene">
       <svg viewBox="0 0 320 120" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
         <circle cx="280" cy="22" r="10" class="moon"/>
         <path d="M-999 90H-160Q-120 74 -80 88T0 92Q40 72 80 88T160 84T240 80T320 88T400 82T480 90H1320V120H-999z" class="hill"/>
@@ -309,6 +304,13 @@ function idleHead(now = new Date()) {
         </g>
       </svg>
     </div>`;
+
+function idleHead(now = new Date()) {
+  const minutes = now.getHours() * 60 + now.getMinutes();
+  const date = now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+  return `<span class="idle-tags">${prestigePill(idlePrestige())}<span class="tag xp">${esc(date)}</span></span>
+    <div class="xp-bar"><i style="width:${(minutes / 1440) * 100}%"></i><span><b>Time away</b><b>${Math.floor(minutes / 60)}h ${minutes % 60}m / 24h 0m</b></span></div>
+    ${idleScene()}`;
 }
 
 // Pikmin 2's day counter, counting the days of the year. The lettering is drawn
@@ -382,17 +384,19 @@ function currentMode() {
   return MODES[m] ? m : 'home';
 }
 
+const PENGU = 'https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/loadouts/companions/tooltip_penguknight_classic_tier1.png';
+
+// Each tile is a small piece of its horoscope's page.
 function homeArt(mode) {
-  const picture = {
-    league: `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Ahri_0.jpg`,
-    tft: TRAITS[0].units[0].art,
-    factorio: FACTORIO_ITEMS.find((i) => i.name === 'Iron gear wheel')?.icon ?? FACTORIO_ITEMS[0].icon,
-    pikmin: PIKMIN_TYPES[0].art,
-    pokemon: POKEMON[24].art,
-  }[mode];
-  return picture
-    ? `<img src="${esc(picture)}" alt="">`
-    : '<svg viewBox="0 0 40 40" aria-hidden="true"><use href="idle/icons.svg#tree"></use></svg>';
+  const img = (src, cls = '') => `<img class="${cls}" src="${esc(src)}" alt="">`;
+  return {
+    league: () => `<div class="tarot">${img(KEYSTONES.find((k) => k.key === 'Electrocute').icon)}</div>`,
+    tft: () => `<div class="hexes"><i></i><i class="on">${img(PENGU)}</i><i></i></div>`,
+    factorio: () => `<div class="slot">${img(FACTORIO_ITEMS.find((i) => i.name === 'Rocket silo').icon)}</div>`,
+    idle: () => idleScene(),
+    pikmin: () => `<div class="trio">${PIKMIN_TYPES.slice(0, 3).map((t) => img(t.art)).join('')}</div>${sunMeter()}`,
+    pokemon: () => `<i class="lens"></i><div class="lcd">${[0, 3, 6].map((n) => img(POKEMON[n].art)).join('')}</div>`,
+  }[mode]();
 }
 
 function renderHome() {

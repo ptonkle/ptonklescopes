@@ -534,25 +534,69 @@ body[data-mode="idle"] .content::-webkit-scrollbar-thumb { background: #39415a; 
 }
 .bar, .modes { flex-wrap: wrap; }
 
-/* Home: a tile for every horoscope, in that horoscope's colors */
-.scopes { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+/* Home: each tile is a small piece of its horoscope's page */
+.scopes { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
 @media (max-width: 760px) { .scopes { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 480px) { .scopes { grid-template-columns: 1fr; } }
-.scope {
-  display: flex; flex-direction: column; height: 100%; overflow: hidden; text-decoration: none;
-  color: var(--tile-ink); background: var(--tile); border: 1px solid var(--tile-line); border-radius: var(--radius);
-  font-family: var(--head-font); font-weight: 700; font-size: 1.25rem; text-align: center;
-  transition: transform .2s, box-shadow .2s;
+.scopes li { min-width: 0; }
+.scope { position: relative; display: flex; flex-direction: column; height: 270px; overflow: hidden; text-decoration: none; transition: transform .15s, box-shadow .15s; }
+.scope:hover, .scope:focus-visible { transform: translateY(-3px); outline: none; }
+.scope > div:first-of-type { flex: 1; min-height: 0; }
+.scope > span { flex: none; padding: 10px; text-align: center; }
+
+.scope[data-scope="league"] {
+  color: var(--ink); font-family: 'Cinzel', serif; font-weight: 700; font-size: 1.2rem;
+  background: linear-gradient(170deg, #15264a, #0c162c); border: 1px solid #c8a24a66; border-radius: 6px; outline: 1px solid #c8a24a33; outline-offset: -8px;
 }
-.scope:hover, .scope:focus-visible { transform: translateY(-3px); box-shadow: 0 0 24px var(--tile-line); outline: none; }
-.scope img, .scope svg { display: block; width: 100%; height: 210px; padding: 18px; object-fit: contain; }
-.scope span { padding: 12px; }
-.scope[data-scope="league"] { --tile: #111d36; --tile-ink: #e9e3d0; --tile-line: #c8a24a; }
-.scope[data-scope="league"] img { padding: 0; object-fit: cover; object-position: 60% 20%; }
-.scope[data-scope="tft"] { --tile: #1b1436; --tile-ink: #f0e6ff; --tile-line: #9a6cf0; }
-.scope[data-scope="tft"] img { padding: 0; object-fit: cover; object-position: 50% 25%; }
-.scope[data-scope="factorio"] { --tile: #313031; --tile-ink: #ffe6c0; --tile-line: #ffa200; }
-.scope[data-scope="idle"] { --tile: #222838; --tile-ink: #e8ecf5; --tile-line: #4f8ef7; }
-.scope[data-scope="pikmin"] { --tile: #0f3a54; --tile-ink: #4fdcf0; --tile-line: #3fd4ea; }
-.scope[data-scope="pokemon"] { --tile: #d2152f; --tile-ink: #fff; --tile-line: #ffc20e; }
-.scope[data-scope="pokemon"] img { image-rendering: pixelated; transform: scale(1.8); }
+.scope[data-scope="league"]:hover, .scope[data-scope="league"]:focus-visible { border-color: #3fd1c4; box-shadow: 0 0 24px #3fd1c455, inset 0 0 30px #3fd1c41a; }
+.tarot { display: grid; place-items: center; }
+.tarot img { width: 148px; height: 148px; padding: 8px; border-radius: 50%; background: #0008; border: 1px solid #c8a24a; box-shadow: 0 0 26px #3fd1c455; }
+
+.scope[data-scope="tft"] {
+  color: #f6e7b4; font-family: 'Cinzel', serif; font-weight: 700; font-size: 1.15rem; border-radius: 6px;
+  background: radial-gradient(ellipse at 50% 30%, #3a2a7a, #17103a 75%); border: 1px solid #b89cff55;
+}
+.scope[data-scope="tft"]:hover, .scope[data-scope="tft"]:focus-visible { box-shadow: 0 0 24px #9a6cf088; }
+.hexes { display: flex; justify-content: center; align-items: center; gap: 6px; }
+.hexes i { width: 96px; height: 110px; background: #4a3a95; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
+.hexes i.on { position: relative; width: 150px; height: 172px; background: linear-gradient(#f0c75e, #a97a1e); }
+.hexes i.on::before { content: ''; position: absolute; inset: 4px; background: #231a58; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
+.hexes img { position: absolute; inset: 4px; width: calc(100% - 8px); height: calc(100% - 8px); object-fit: cover; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
+
+.scope[data-scope="factorio"] {
+  padding-top: 6px; color: #ffe6c0; font-family: 'Titillium Web', sans-serif; font-weight: 700; font-size: 1.2rem; text-transform: uppercase; letter-spacing: .04em;
+  background: #313031; box-shadow: 0 0 0 2px #141314, inset 0 2px 0 #4c4b4c, inset 0 -2px 0 #232223, 0 6px 14px #0008;
+}
+.scope[data-scope="factorio"]::before { content: ''; position: absolute; inset: 0 0 auto; height: 8px; background: repeating-linear-gradient(-45deg, #e8a823 0 10px, #1a1a1a 10px 20px); }
+.scope[data-scope="factorio"]:hover, .scope[data-scope="factorio"]:focus-visible { box-shadow: 0 0 0 2px #ffa200, 0 8px 18px #000a; }
+.slot { display: grid; place-items: center; margin: 14px auto 0; width: 170px; background: radial-gradient(circle, #4a4847 0%, #2b2a2b 75%); box-shadow: inset 0 3px 8px #000d, inset 0 0 0 2px #151415, 0 2px 0 #4c4b4c; }
+.slot img { width: 128px; height: 128px; object-fit: contain; filter: drop-shadow(0 4px 6px #000a); }
+
+.scope[data-scope="idle"] { color: #e8ecf5; font-family: system-ui, sans-serif; font-weight: 800; background: #222838; border: 1px solid #39415a; border-radius: 8px; padding: 10px; gap: 10px; }
+.scope[data-scope="idle"]:hover, .scope[data-scope="idle"]:focus-visible { border-color: #4f8ef7; }
+.scope[data-scope="idle"] > span { padding: 11px; border-radius: 8px; background: #3d5cbf; color: #fff; }
+
+.scope[data-scope="pikmin"] {
+  color: #4fdcf0; font-family: 'M PLUS Rounded 1c', sans-serif; font-weight: 800; font-size: 1.2rem;
+  --cut: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
+  background: #4fdcf0; clip-path: var(--cut);
+}
+.scope[data-scope="pikmin"]::before {
+  content: ''; position: absolute; inset: 1.5px; clip-path: var(--cut);
+  background: radial-gradient(circle, #4fdcf026 1px, transparent 1.6px) 0 0 / 16px 16px, linear-gradient(160deg, #15506f, #0a2b42);
+}
+.scope[data-scope="pikmin"]:hover::before, .scope[data-scope="pikmin"]:focus-visible::before { background: radial-gradient(circle, #4fdcf026 1px, transparent 1.6px) 0 0 / 16px 16px, linear-gradient(160deg, #1c7295, #124a68); }
+.scope[data-scope="pikmin"] > * { position: relative; }
+.trio { display: flex; justify-content: flex-start; align-items: flex-end; gap: 4px; padding: 16px 0 0 20px; }
+.trio img { height: 170px; width: 74px; object-fit: contain; object-position: bottom; filter: drop-shadow(0 4px 4px #0008); }
+.scope[data-scope="pikmin"] .sun-meter { position: absolute; top: 28px; right: 16px; width: 72px; }
+
+.scope[data-scope="pokemon"] {
+  color: #10293d; font-family: 'Press Start 2P', monospace; font-size: .8rem; padding: 12px 14px; gap: 10px; border-radius: 8px;
+  background: #d2152f; box-shadow: inset 0 3px 0 #ff5a6e, inset 0 -4px 0 #7d0a1b;
+}
+.scope[data-scope="pokemon"]:hover, .scope[data-scope="pokemon"]:focus-visible { box-shadow: inset 0 3px 0 #ff5a6e, inset 0 -4px 0 #7d0a1b, 0 0 22px #ffc20e88; }
+.lens { position: absolute; top: 9px; left: 16px; z-index: 1; width: 32px; height: 32px; border-radius: 50%; background: radial-gradient(circle at 34% 30%, #fff 0 9%, #bfe6ff 13%, #2f9be0 38%, #125fae 68%, #0b3a74 100%); box-shadow: 0 0 0 3px #fff, 0 0 0 5px #5a0713; }
+.lcd { display: flex; justify-content: center; align-items: center; gap: 0; margin-top: 36px; background: #141416; border-radius: 4px; box-shadow: inset 0 0 14px #000, 0 0 0 5px #f2efe6, 0 2px 0 6px #7d0a1b; overflow: hidden; }
+.lcd img { width: 33%; height: 100%; object-fit: contain; transform: scale(1.9); image-rendering: pixelated; }
+.scope[data-scope="pokemon"] > span { margin-top: 2px; padding: 10px; background: #6db8e8; border-radius: 6px; box-shadow: inset 0 3px 0 #b5e0fa, inset 0 -4px 0 #3c86bd, 0 3px 0 #5a0713; }
