@@ -534,6 +534,37 @@ body[data-mode="idle"] .content::-webkit-scrollbar-thumb { background: #39415a; 
 }
 .bar, .modes { flex-wrap: wrap; }
 
+/* ---------- Home: a night sky of its own, belonging to none of the games ---------- */
+body[data-mode="home"] {
+  --line: #c9d4e833; --muted: #aab4c8; --head-font: 'Marcellus', serif; --body-font: 'Marcellus', serif;
+  color: #eef2fa;
+  background:
+    radial-gradient(1.4px 1.4px at 12% 18%, #fff, transparent),
+    radial-gradient(1px 1px at 27% 62%, #dfe7ff, transparent),
+    radial-gradient(1.2px 1.2px at 41% 9%, #fff, transparent),
+    radial-gradient(1px 1px at 58% 44%, #cfd9ff, transparent),
+    radial-gradient(1.6px 1.6px at 73% 15%, #fff, transparent),
+    radial-gradient(1px 1px at 86% 71%, #e8eeff, transparent),
+    radial-gradient(1.2px 1.2px at 94% 33%, #fff, transparent),
+    radial-gradient(1px 1px at 6% 83%, #dfe7ff, transparent),
+    radial-gradient(1px 1px at 19% 37%, #ffffffb0, transparent) 0 0 / 230px 230px,
+    radial-gradient(1px 1px at 71% 58%, #ffffff90, transparent) 0 0 / 170px 170px,
+    radial-gradient(ellipse at 50% 0, #17203a 0%, #080b16 55%, #05070e 100%);
+  background-attachment: fixed;
+}
+/* A faint zodiac wheel behind the tiles */
+body[data-mode="home"]::before {
+  content: ''; position: fixed; z-index: -1; left: 50%; top: 50%; width: min(1100px, 150vw); aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; pointer-events: none;
+  background: repeating-conic-gradient(#c9d4e81f 0 .35deg, transparent .35deg 30deg), repeating-conic-gradient(#c9d4e812 0 .15deg, transparent .15deg 5deg);
+  -webkit-mask: radial-gradient(closest-side, transparent 78%, #000 78.3% 99%, transparent 99.4%); mask: radial-gradient(closest-side, transparent 78%, #000 78.3% 99%, transparent 99.4%);
+  box-shadow: inset 0 0 0 1px #c9d4e822;
+}
+body[data-mode="home"] .bar { border-bottom-color: #c9d4e826; }
+body[data-mode="home"] .brand { color: #eef2fa; font-weight: 400; letter-spacing: .08em; }
+body[data-mode="home"] .modes a { color: var(--muted); border-radius: 999px; }
+body[data-mode="home"] .modes a:hover { color: #fff; border-color: #c9d4e855; }
+body[data-mode="home"] .page-head h1 { font-weight: 400; color: #f4f6fc; letter-spacing: .06em; text-shadow: 0 0 26px #b9c8ff55; }
+
 /* Home: each tile is a small piece of its horoscope's page */
 .scopes { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
 @media (max-width: 760px) { .scopes { grid-template-columns: repeat(2, 1fr); } }
