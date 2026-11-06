@@ -13,6 +13,8 @@ Daily horoscopes for the games you play. Static site, no build step.
   Regenerate with `python3 -I tools/build_pikmin.py` (needs Pillow, so run it from a venv).
 - `pokemon.js`: generated Pokémon, items, moves, abilities and Gym Leaders, with sprites from PokeAPI. Leader pictures live in `leaders/`.
   Regenerate with `python3 -I tools/build_pokemon.py`.
+- `idle.js`, `idle/`: generated Idle Game skills, items, enemies and actions, with the game's own icons (MIT, license in `idle/`).
+  Regenerate with `python3 -I tools/build_idle.py`; it reads the live game, which is ahead of the repository.
 - Each mode can restyle the whole page: see the `body[data-mode="factorio"]` rules in `styles.css`.
 - New League champions need no rebuild: the page loads the live champion list from Data Dragon.
 - A new TFT set's traits use generic lines (`TFT.traitAny`) until their own lines are written in `texts.js`.
