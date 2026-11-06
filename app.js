@@ -1,12 +1,14 @@
 import { DDRAGON, TFT_SET, CHAMPIONS, KEYSTONES, TRAITS } from './data.js';
 import { FACTORIO_ITEMS, FACTORIO_TECHS } from './factorio.js';
 import { PIKMIN_CREATURES, PIKMIN_TREASURES, PIKMIN_TYPES } from './pikmin.js';
-import { SIGNS, LOL, TFT, FACTORIO, PIKMIN } from './texts.js';
+import { POKEMON, POKEMON_ITEMS, POKEMON_MOVES, POKEMON_ABILITIES, GYM_LEADERS } from './pokemon.js';
+import { SIGNS, LOL, TFT, FACTORIO, PIKMIN, POKE } from './texts.js';
 
 const MODES = {
   league: { label: 'League of Legends', read: leagueReading },
   tft: { label: 'Teamfight Tactics', read: tftReading },
   factorio: { label: 'Factorio', read: factorioReading },
+  pokemon: { label: 'Pokémon', read: pokemonReading },
   pikmin: {
     label: 'Pikmin',
     read: pikminReading,
@@ -165,6 +167,38 @@ function pikminReading(i) {
   };
 }
 
+// Names that land on a disambiguation page under their plain title.
+const WIKI_PAGES = { Blue: 'Blue (game)', Pearl: 'Pearl (item)', 'Black Belt': 'Black Belt (item)', Metronome: 'Metronome (item)', Apple: 'Apple (item)' };
+const bulbapedia = (name) => {
+  const page = (WIKI_PAGES[name] ?? name).replaceAll('’', "'").replaceAll(' ', '_');
+  return `https://bulbapedia.bulbagarden.net/wiki/${encodeURIComponent(page)}`;
+};
+
+function pokemonReading(i) {
+  const sign = SIGNS[i];
+  const r = rng(`${dayKey()}|pokemon|${sign.key}`);
+  const mon = dailyDraw('pokemon', POKEMON)[i];
+  const leader = dailyDraw('pokemon-leader', GYM_LEADERS)[i];
+  const item = pick(r, POKEMON_ITEMS);
+  const move = pick(r, POKEMON_MOVES);
+  const ability = pick(r, POKEMON_ABILITIES);
+  return {
+    headline: pick(r, POKE.headlines),
+    lines: [
+      pick(r, POKE.pokemon[mon.types[0]]).replace('{pokemon}', mon.name),
+      pick(r, POKE.move[move.class]).replace('{move}', move.name),
+    ],
+    advice: pick(r, POKE.wisdom),
+    lucky: [
+      ['Hold', item.name, item.art, bulbapedia(item.name)],
+      ['Move', move.name, null, bulbapedia(`${move.name} (move)`)],
+      ['Ability', ability, null, bulbapedia(`${ability} (Ability)`)],
+      ['Avoid', pick(r, POKE.avoid)],
+    ],
+    art: { kind: 'dex', mon, leader },
+  };
+}
+
 function tftReading(i) {
   const sign = SIGNS[i];
   const r = rng(`${dayKey()}|tft|${sign.key}`);
@@ -261,6 +295,7 @@ function sunMeter(now = new Date()) {
 const $ = (sel, el = document) => el.querySelector(sel);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 const main = $('#main');
+const wikiLink = (text, href) => `<a class="wiki" href="${esc(href)}" target="_blank" rel="noopener">${esc(text)}</a>`;
 
 function currentMode() {
   const m = location.hash.replace('#/', '');
@@ -295,7 +330,22 @@ function renderPage() {
 
 function readingHTML(sign, rd) {
   const a = rd.art;
-  const figure = a.kind === 'attributes'
+  const figure = a.kind === 'dex'
+    ? `<div class="art dex">
+         <div class="dex-screen">
+           <img class="trim" crossorigin="anonymous" src="${esc(a.mon.art)}" alt="${esc(a.mon.name)}">
+           <p class="dex-no">No. ${String(a.mon.dex).padStart(4, '0')}</p>
+         </div>
+         <div class="dex-name">
+           <strong>${wikiLink(a.mon.name, bulbapedia(`${a.mon.name} (Pokémon)`))}</strong><em>${esc(a.mon.genus)}</em><small>${esc(a.mon.types.join(' / '))}</small>
+           <button class="cry" aria-label="Play cry"></button>
+         </div>
+         <div class="dex-leader">
+           <img class="${a.leader.pixel ? 'pixel trim' : ''}" src="${esc(a.leader.art)}" alt="${esc(a.leader.name)}">
+           <div><small>${esc(a.leader.role)}</small><strong>${wikiLink(a.leader.name, bulbapedia(a.leader.name))}</strong><em>${esc(a.leader.type)} · ${esc(a.leader.city)}</em></div>
+         </div>
+       </div>`
+    : a.kind === 'attributes'
     ? `<ul class="art attributes">${a.items.map((t) => `
          <li>
            <div class="attr-frame"><img src="${esc(t.src)}" alt="${esc(t.name)}"></div>
@@ -331,10 +381,12 @@ function readingHTML(sign, rd) {
     <div class="reading-body">
       ${figure}
       <div class="words">
-        <h3>${esc(rd.headline)}</h3>
-        ${rd.lines.map((l) => `<p>${esc(l)}</p>`).join('')}
-        <p class="advice">${esc(rd.advice)}</p>
-        <dl class="lucky">${rd.lucky.map(([k, v, icon]) => `<div><dt>${esc(k)}</dt><dd>${icon ? `<img src="${esc(icon)}" alt="">` : ''}${esc(v)}</dd></div>`).join('')}</dl>
+        <div class="say">
+          <h3>${esc(rd.headline)}</h3>
+          ${rd.lines.map((l) => `<p>${esc(l)}</p>`).join('')}
+          <p class="advice">${esc(rd.advice)}</p>
+        </div>
+        <dl class="lucky">${rd.lucky.map(([k, v, icon, href]) => `<div><dt>${esc(k)}</dt><dd>${icon ? `<img src="${esc(icon)}" alt="">` : ''}${href ? wikiLink(v, href) : esc(v)}</dd></div>`).join('')}</dl>
       </div>
     </div>`;
 }
@@ -346,6 +398,17 @@ const panel = $('#reveal .panel');
 const content = $('#reveal .content');
 let openFrom = null;
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+
+// Pokémon cries: one plays when a reading opens. Volume is kept between visits.
+let volume = 0.5;
+try { volume = Number(localStorage.getItem('volume') ?? volume); } catch { /* storage blocked */ }
+const cry = new Audio();
+
+function playCry(src) {
+  cry.src = src;
+  cry.volume = volume;
+  cry.play().catch(() => {});
+}
 
 function flip(from, reverse) {
   const a = from.getBoundingClientRect();
@@ -359,20 +422,53 @@ function flip(from, reverse) {
   }).finished;
 }
 
+// Sprites sit in empty margins: crop to the drawn pixels so they fill their screens.
+function trimSprite(img) {
+  const c = document.createElement('canvas');
+  c.width = img.naturalWidth;
+  c.height = img.naturalHeight;
+  const g = c.getContext('2d');
+  g.drawImage(img, 0, 0);
+  const { data } = g.getImageData(0, 0, c.width, c.height);
+  let [left, top, right, bottom] = [c.width, c.height, 0, 0];
+  for (let y = 0; y < c.height; y++) {
+    for (let x = 0; x < c.width; x++) {
+      if (data[(y * c.width + x) * 4 + 3] > 8) {
+        left = Math.min(left, x); right = Math.max(right, x);
+        top = Math.min(top, y); bottom = Math.max(bottom, y);
+      }
+    }
+  }
+  if (right < left) return;
+  const out = document.createElement('canvas');
+  out.width = right - left + 1;
+  out.height = bottom - top + 1;
+  out.getContext('2d').drawImage(c, -left, -top);
+  img.onload = null;
+  img.src = out.toDataURL();
+}
+
 function open(btn) {
   const i = Number(btn.dataset.i);
-  content.innerHTML = readingHTML(SIGNS[i], MODES[currentMode()].read(i));
+  const rd = MODES[currentMode()].read(i);
+  content.innerHTML = readingHTML(SIGNS[i], rd);
   for (const img of content.querySelectorAll('img')) img.onerror = () => img.remove();
+  for (const img of content.querySelectorAll('img.trim')) {
+    if (img.complete && img.naturalWidth) trimSprite(img);
+    else img.onload = () => trimSprite(img);
+  }
   openFrom = btn;
   reveal.hidden = false;
   document.body.classList.add('locked');
   content.scrollTop = 0;
   flip(btn, false);
   $('.close', panel).focus({ preventScroll: true });
+  if (rd.art.mon) playCry(rd.art.mon.cry);
 }
 
 async function close() {
   if (reveal.hidden) return;
+  cry.pause();
   const from = openFrom;
   reveal.classList.add('closing');
   if (from) await flip(from, true);
@@ -389,6 +485,13 @@ main.addEventListener('click', (e) => {
 });
 reveal.addEventListener('click', (e) => {
   if (e.target === reveal || e.target.closest('.close')) close();
+  if (e.target.closest('.cry')) { cry.currentTime = 0; cry.play().catch(() => {}); }
+});
+const volumeSlider = $('#volume');
+volumeSlider.value = volume;
+volumeSlider.addEventListener('input', () => {
+  volume = cry.volume = Number(volumeSlider.value);
+  try { localStorage.setItem('volume', volume); } catch { /* storage blocked */ }
 });
 addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
 addEventListener('hashchange', () => { reveal.hidden = true; document.body.classList.remove('locked'); renderPage(); });
