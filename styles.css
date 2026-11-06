@@ -452,6 +452,7 @@ body[data-mode="idle"] .modes a[aria-current] { border-color: var(--accent-2); b
 body[data-mode="idle"] main { padding-top: 16px; }
 
 body[data-mode="idle"] .tag { justify-self: end; font-weight: 800; font-size: .8rem; padding: 3px 9px; border-radius: 6px; background: #2b3246; color: #fff; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.idle-tags { justify-self: end; display: flex; gap: 8px; }
 .tag.xp { background: #4f8ef7 !important; }
 .tag.mast { background: #a56cf0 !important; }
 .tag.hp { background: #d9534f !important; }

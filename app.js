@@ -264,10 +264,25 @@ function tftReading(i) {
 // --- Rendering ---
 
 // The game's heading: today as a save's away limit, then its scene with the figure at work.
+// Prestige counts the separate days this page has been checked; missed days cost nothing.
+function idlePrestige() {
+  try {
+    let days = Number(localStorage.getItem('idlePrestige')) || 0;
+    if (localStorage.getItem('idleLastDay') !== dayKey()) {
+      days += 1;
+      localStorage.setItem('idlePrestige', days);
+      localStorage.setItem('idleLastDay', dayKey());
+    }
+    return days;
+  } catch {
+    return 1;
+  }
+}
+
 function idleHead(now = new Date()) {
   const minutes = now.getHours() * 60 + now.getMinutes();
   const date = now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
-  return `<span class="tag xp">${esc(date)}</span>
+  return `<span class="idle-tags"><span class="tag mast">Prestige ×${idlePrestige()}</span><span class="tag xp">${esc(date)}</span></span>
     <div class="xp-bar"><i style="width:${(minutes / 1440) * 100}%"></i><span><b>Time away</b><b>${Math.floor(minutes / 60)}h ${minutes % 60}m / 24h 0m</b></span></div>
     <div class="idle-scene">
       <svg viewBox="0 0 320 120" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
