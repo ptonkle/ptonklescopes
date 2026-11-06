@@ -384,17 +384,19 @@ function currentMode() {
   return MODES[m] ? m : 'home';
 }
 
+const PORO = 'https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/1445.jpg';
 const PENGU = 'https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/loadouts/companions/tooltip_penguknight_classic_tier1.png';
 
 // Each tile is a small piece of its horoscope's page.
 function homeArt(mode) {
   const img = (src, cls = '') => `<img class="${cls}" src="${esc(src)}" alt="">`;
   return {
-    league: () => `<div class="tarot">${img(KEYSTONES.find((k) => k.key === 'Electrocute').icon)}</div>`,
+    league: () => `<div class="tarot">${img(PORO)}</div>`,
     tft: () => `<div class="hexes"><i></i><i class="on">${img(PENGU)}</i><i></i></div>`,
-    factorio: () => `<div class="slot">${img(FACTORIO_ITEMS.find((i) => i.name === 'Rocket silo').icon)}</div>`,
+    factorio: () => `<div class="slots">${['Automation', 'Logistic', 'Military', 'Chemical', 'Production', 'Utility']
+      .map((p) => `<i>${img(FACTORIO_TECHS.find((t) => t.name === `${p} science pack`).icon)}</i>`).join('')}</div><div class="belt"></div>`,
     idle: () => idleScene(),
-    pikmin: () => `<div class="trio">${PIKMIN_TYPES.slice(0, 3).map((t) => img(t.art)).join('')}</div>${sunMeter()}`,
+    pikmin: () => `<div class="trio">${PIKMIN_TYPES.slice(0, 3).map((t) => img(t.art)).join('')}</div>`,
     pokemon: () => `<i class="lens"></i><div class="lcd">${[0, 3, 6].map((n) => img(POKEMON[n].art)).join('')}</div>`,
   }[mode]();
 }
