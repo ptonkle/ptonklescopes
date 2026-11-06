@@ -234,7 +234,7 @@ body[data-mode="factorio"] .art.icon .icon-frame {
   background: radial-gradient(circle, #4a4847 0%, #2b2a2b 75%);
   box-shadow: inset 0 3px 8px #000d, inset 0 0 0 2px #151415, 0 2px 0 #4c4b4c;
 }
-body[data-mode="factorio"] .art.icon .icon-frame img { filter: drop-shadow(0 4px 6px #000a); }
+body[data-mode="factorio"] .art.icon .icon-frame img { filter: drop-shadow(0 4px 6px #000a); image-rendering: pixelated; }
 body[data-mode="factorio"] .art small { color: var(--accent); }
 body[data-mode="factorio"] .art strong { color: #ffe6c0; font-weight: 700; }
 body[data-mode="factorio"] .content { scrollbar-color: var(--accent) transparent; }
