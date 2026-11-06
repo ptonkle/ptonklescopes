@@ -533,3 +533,26 @@ body[data-mode="idle"] .content::-webkit-scrollbar-thumb { background: #39415a; 
   body[data-mode="idle"] .art.attributes .tag { top: 2px; right: 2px; padding: 1px 4px; font-size: .65rem; }
 }
 .bar, .modes { flex-wrap: wrap; }
+
+/* Home: a tile for every horoscope, in that horoscope's colors */
+.scopes { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+@media (max-width: 760px) { .scopes { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px) { .scopes { grid-template-columns: 1fr; } }
+.scope {
+  display: flex; flex-direction: column; height: 100%; overflow: hidden; text-decoration: none;
+  color: var(--tile-ink); background: var(--tile); border: 1px solid var(--tile-line); border-radius: var(--radius);
+  font-family: var(--head-font); font-weight: 700; font-size: 1.25rem; text-align: center;
+  transition: transform .2s, box-shadow .2s;
+}
+.scope:hover, .scope:focus-visible { transform: translateY(-3px); box-shadow: 0 0 24px var(--tile-line); outline: none; }
+.scope img, .scope svg { display: block; width: 100%; height: 210px; padding: 18px; object-fit: contain; }
+.scope span { padding: 12px; }
+.scope[data-scope="league"] { --tile: #111d36; --tile-ink: #e9e3d0; --tile-line: #c8a24a; }
+.scope[data-scope="league"] img { padding: 0; object-fit: cover; object-position: 60% 20%; }
+.scope[data-scope="tft"] { --tile: #1b1436; --tile-ink: #f0e6ff; --tile-line: #9a6cf0; }
+.scope[data-scope="tft"] img { padding: 0; object-fit: cover; object-position: 50% 25%; }
+.scope[data-scope="factorio"] { --tile: #313031; --tile-ink: #ffe6c0; --tile-line: #ffa200; }
+.scope[data-scope="idle"] { --tile: #222838; --tile-ink: #e8ecf5; --tile-line: #4f8ef7; }
+.scope[data-scope="pikmin"] { --tile: #0f3a54; --tile-ink: #4fdcf0; --tile-line: #3fd4ea; }
+.scope[data-scope="pokemon"] { --tile: #d2152f; --tile-ink: #fff; --tile-line: #ffc20e; }
+.scope[data-scope="pokemon"] img { image-rendering: pixelated; transform: scale(1.8); }

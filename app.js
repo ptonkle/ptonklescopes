@@ -379,7 +379,29 @@ const wikiLink = (text, href) => `<a class="wiki" href="${esc(href)}" target="_b
 
 function currentMode() {
   const m = location.hash.replace('#/', '');
-  return MODES[m] ? m : 'league';
+  return MODES[m] ? m : 'home';
+}
+
+function homeArt(mode) {
+  const picture = {
+    league: `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Ahri_0.jpg`,
+    tft: TRAITS[0].units[0].art,
+    factorio: FACTORIO_ITEMS.find((i) => i.name === 'Iron gear wheel')?.icon ?? FACTORIO_ITEMS[0].icon,
+    pikmin: PIKMIN_TYPES[0].art,
+    pokemon: POKEMON[24].art,
+  }[mode];
+  return picture
+    ? `<img src="${esc(picture)}" alt="">`
+    : '<svg viewBox="0 0 40 40" aria-hidden="true"><use href="idle/icons.svg#tree"></use></svg>';
+}
+
+function renderHome() {
+  main.innerHTML = `
+    <div class="page-head"><h1>Ptonklescopes</h1></div>
+    <ul class="scopes">
+      ${Object.entries(MODES).map(([mode, { label }]) => `
+        <li><a class="scope" data-scope="${mode}" href="#/${mode}">${homeArt(mode)}<span>${esc(label)}</span></a></li>`).join('')}
+    </ul>`;
 }
 
 function renderPage() {
@@ -388,6 +410,7 @@ function renderPage() {
   for (const a of document.querySelectorAll('.modes a')) {
     a.toggleAttribute('aria-current', a.dataset.mode === mode);
   }
+  if (mode === 'home') return renderHome();
   const date = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
   const sub = {
     league: `Patch ${patch.split('.').slice(0, 2).join('.')}`,
