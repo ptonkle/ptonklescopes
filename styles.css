@@ -441,7 +441,7 @@ body[data-mode="pokemon"] .content::-webkit-scrollbar-thumb { background: #ffc20
 /* ---------- Idle Game: the game's own dark panels, chips, tags and bars ---------- */
 body[data-mode="idle"] {
   --bg: #151923; --ink: #e8ecf5; --muted: #98a2bb; --accent: #4f8ef7; --accent-2: #f0a920;
-  --card: #222838; --card-ink: #e8ecf5; --line: #39415a; --panel: #222838; --radius: 8px; --go: #3d5cbf; --mast: #a56cf0; --hp: #d9534f; --chip: #1a1f2c;
+  --card: #222838; --card-ink: #e8ecf5; --line: #39415a; --panel: #222838; --radius: 8px; --go: #3d5cbf; --mast: #a56cf0; --hp: #d9534f; --chip: #1a1f2c; --pres: #e86fb0;
   --head-font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; --body-font: var(--head-font); --body-size: 1rem;
   background: var(--bg);
 }
@@ -452,7 +452,10 @@ body[data-mode="idle"] .modes a[aria-current] { border-color: var(--accent-2); b
 body[data-mode="idle"] main { padding-top: 16px; }
 
 body[data-mode="idle"] .tag { justify-self: end; font-weight: 800; font-size: .8rem; padding: 3px 9px; border-radius: 6px; background: #2b3246; color: #fff; white-space: nowrap; font-variant-numeric: tabular-nums; }
-.idle-tags { justify-self: end; display: flex; gap: 8px; }
+.idle-tags { justify-self: end; display: flex; align-items: center; gap: 8px; }
+/* Copied from the game: the prestige pill in its top bar */
+.pill { display: flex; align-items: center; gap: 5px; background: var(--chip); border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 13px; }
+.pill.pres { border-color: var(--pres); color: #ffd0ea; }
 .tag.xp { background: #4f8ef7 !important; }
 .tag.mast { background: #a56cf0 !important; }
 .tag.hp { background: #d9534f !important; }
