@@ -1,12 +1,14 @@
 import { DDRAGON, TFT_SET, CHAMPIONS, KEYSTONES, TRAITS } from './data.js';
 import { FACTORIO_ITEMS, FACTORIO_TECHS } from './factorio.js';
 import { PIKMIN_CREATURES, PIKMIN_TREASURES, PIKMIN_TYPES } from './pikmin.js';
-import { SIGNS, LOL, TFT, FACTORIO, PIKMIN } from './texts.js';
+import { IDLE_SKILLS, IDLE_ITEMS, IDLE_ENEMIES, IDLE_ACTIONS } from './idle.js';
+import { SIGNS, LOL, TFT, FACTORIO, PIKMIN, IDLE } from './texts.js';
 
 const MODES = {
   league: { label: 'League of Legends', read: leagueReading },
   tft: { label: 'Teamfight Tactics', read: tftReading },
   factorio: { label: 'Factorio', read: factorioReading },
+  idle: { label: 'Idle Game', read: idleReading, head: idleHead },
   pikmin: {
     label: 'Pikmin',
     read: pikminReading,
@@ -165,6 +167,36 @@ function pikminReading(i) {
   };
 }
 
+function idleReading(i) {
+  const sign = SIGNS[i];
+  const r = rng(`${dayKey()}|idle|${sign.key}`);
+  const skill = dailyDraw('idle', IDLE_SKILLS)[i];
+  const item = dailyDraw('idle-item', IDLE_ITEMS)[i];
+  const enemy = dailyDraw('idle-enemy', IDLE_ENEMIES)[i];
+  const number = (most) => 1 + Math.floor(r() * most);
+  return {
+    headline: pick(r, IDLE.headlines),
+    lines: [
+      pick(r, IDLE.skill[skill.key]),
+      pick(r, IDLE.item).replace('{item}', item.name),
+      pick(r, IDLE.enemy).replace('{enemy}', enemy.name),
+    ],
+    advice: pick(r, IDLE.wisdom),
+    lucky: [
+      ['Plan', pick(r, IDLE_ACTIONS)],
+      ['Avoid', pick(r, IDLE.avoid)],
+    ],
+    art: {
+      kind: 'attributes',
+      items: [
+        { label: 'Skill', name: skill.name, sub: skill.group, icon: skill.icon, tag: `Lvl ${number(99)}`, tagKind: 'xp' },
+        { label: 'Item', name: item.name, icon: item.icon, tag: `M ${number(99)}`, tagKind: 'mast' },
+        { label: 'Enemy', name: enemy.name, icon: enemy.icon, tag: `Kills ${number(999)}`, tagKind: 'hp' },
+      ],
+    },
+  };
+}
+
 function tftReading(i) {
   const sign = SIGNS[i];
   const r = rng(`${dayKey()}|tft|${sign.key}`);
@@ -196,6 +228,36 @@ function tftReading(i) {
 }
 
 // --- Rendering ---
+
+// The game's heading: today as a save's away limit, then its scene with the figure at work.
+function idleHead(now = new Date()) {
+  const minutes = now.getHours() * 60 + now.getMinutes();
+  const date = now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+  return `<span class="tag xp">${esc(date)}</span>
+    <div class="xp-bar"><i style="width:${(minutes / 1440) * 100}%"></i><span><b>Time away</b><b>${Math.floor(minutes / 60)}h ${minutes % 60}m / 24h 0m</b></span></div>
+    <div class="idle-scene">
+      <svg viewBox="0 0 320 120" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+        <circle cx="280" cy="22" r="10" class="moon"/>
+        <path d="M-999 90H-160Q-120 74 -80 88T0 92Q40 72 80 88T160 84T240 80T320 88T400 82T480 90H1320V120H-999z" class="hill"/>
+        <path d="M-999 100H1320V120H-999z" class="ground"/>
+        <use href="idle/icons.svg#tree" x="168" y="36" width="72" height="72"/>
+        <path d="M88 86L86 103M97 86L99 103" class="leg"/>
+        <path d="M82 104h7M96 104h7" class="boot"/>
+        <path d="M86 64L80 80" class="limb"/>
+        <path d="M80 87L84 61Q92 56 100 61L104 87Z" class="tunic"/>
+        <path d="M82 78h21v4h-21z" class="belt"/>
+        <circle cx="92" cy="47" r="10" class="skin"/>
+        <path d="M82 46Q83 34 93 35Q102 36 102 44Q98 40 92 41Q87 41 82 46z" class="hair"/>
+        <circle cx="95" cy="47" r="1.4" class="eye"/><circle cx="100" cy="47" r="1.4" class="eye"/>
+        <path d="M96 52q2 1.5 4 0" class="mouth"/>
+        <g class="swing">
+          <path d="M98 64L112 72" class="limb"/>
+          <path d="M108 78L128 52" class="haft"/><path d="M121 47q13-2 13 11l-10-3z" class="blade"/>
+          <circle cx="113" cy="72" r="3" class="skin"/>
+        </g>
+      </svg>
+    </div>`;
+}
 
 // Pikmin 2's day counter, counting the days of the year. The lettering is drawn
 // as tubes: blue shadow, chrome stroke, dark core.
@@ -298,7 +360,10 @@ function readingHTML(sign, rd) {
   const figure = a.kind === 'attributes'
     ? `<ul class="art attributes">${a.items.map((t) => `
          <li>
-           <div class="attr-frame"><img src="${esc(t.src)}" alt="${esc(t.name)}"></div>
+           ${t.tag ? `<span class="tag ${esc(t.tagKind)}">${esc(t.tag)}</span>` : ''}
+           <div class="attr-frame">${t.icon
+             ? `<svg viewBox="0 0 40 40" role="img" aria-label="${esc(t.name)}"><use href="idle/icons.svg#${esc(t.icon)}"/></svg>`
+             : `<img src="${esc(t.src)}" alt="${esc(t.name)}">`}</div>
            <div class="attr-text"><small>${esc(t.label)}</small><strong>${esc(t.name)}</strong>${t.sub ? `<em>${esc(t.sub)}</em>` : ''}</div>
          </li>`).join('')}
        </ul>`

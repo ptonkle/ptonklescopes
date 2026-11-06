@@ -11,6 +11,8 @@ Daily horoscopes for the games you play. Static site, no build step.
   Regenerate with `python3 -I tools/build_factorio.py` after a Factorio update.
 - `pikmin.js`: generated Pikmin creatures, treasures and types (Pikmin 1 to 4), with art from Pikipedia.
   Regenerate with `python3 -I tools/build_pikmin.py` (needs Pillow, so run it from a venv).
+- `idle.js`, `idle/`: generated Idle Game skills, items, enemies and actions, with the game's own icons (MIT, license in `idle/`).
+  Regenerate with `python3 -I tools/build_idle.py`; it reads the live game, which is ahead of the repository.
 - Each mode can restyle the whole page: see the `body[data-mode="factorio"]` rules in `styles.css`.
 - New League champions need no rebuild: the page loads the live champion list from Data Dragon.
 - A new TFT set's traits use generic lines (`TFT.traitAny`) until their own lines are written in `texts.js`.
