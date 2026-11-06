@@ -9,6 +9,8 @@ Daily horoscopes for the games you play. Static site, no build step.
   It picks the newest TFT set automatically; add the set's name to `SET_NAMES`.
 - `factorio.js`: generated Factorio items and research (base game and Space Age), with icons from the official wiki.
   Regenerate with `python3 -I tools/build_factorio.py` after a Factorio update.
+- `pikmin.js`: generated Pikmin creatures, treasures and types (Pikmin 1 to 4), with art from Pikipedia.
+  Regenerate with `python3 -I tools/build_pikmin.py` (needs Pillow, so run it from a venv).
 - Each mode can restyle the whole page: see the `body[data-mode="factorio"]` rules in `styles.css`.
 - New League champions need no rebuild: the page loads the live champion list from Data Dragon.
 - A new TFT set's traits use generic lines (`TFT.traitAny`) until their own lines are written in `texts.js`.

@@ -106,7 +106,8 @@ main { max-width: 1100px; margin: 0 auto; padding: 32px 16px 64px; }
 
 .reading-body { display: grid; grid-template-columns: 240px 1fr; gap: clamp(20px, 4vw, 44px); align-items: start; }
 body[data-mode="tft"] .reading-body { grid-template-columns: 240px 1fr; }
-@media (max-width: 720px) { .reading-body, body[data-mode="tft"] .reading-body { grid-template-columns: 1fr; } }
+body[data-mode="pikmin"] .reading-body { grid-template-columns: 1fr; gap: 18px; }
+@media (max-width: 720px) { .reading-body, body[data-mode="tft"] .reading-body, body[data-mode="pikmin"] .reading-body { grid-template-columns: 1fr; } }
 
 .art { margin: 0; }
 .art.portrait > img { display: block; width: 100%; aspect-ratio: 308 / 560; max-height: max(260px, calc(100vh - 400px)); object-fit: cover; object-position: 50% 20%; border-radius: var(--radius); border: 1px solid var(--line); }
@@ -236,3 +237,100 @@ body[data-mode="factorio"] .art small { color: var(--accent); }
 body[data-mode="factorio"] .art strong { color: #ffe6c0; font-weight: 700; }
 body[data-mode="factorio"] .content { scrollbar-color: var(--accent) transparent; }
 body[data-mode="factorio"] .content::-webkit-scrollbar-thumb { background: #ffa200; border-color: var(--panel); }
+
+/* Three attributes in place of one ascending figure (Pikmin) */
+.art.attributes { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.art.attributes li { display: flex; flex-direction: column; align-items: center; text-align: center; min-width: 0; }
+.attr-frame { position: relative; width: 100%; display: grid; place-items: center; padding: 10px; }
+.attr-frame img { position: relative; width: 100%; height: clamp(120px, 24vh, 250px); object-fit: contain; }
+.attr-text { display: flex; flex-direction: column; margin-top: 8px; }
+.attr-text strong { font-size: 1.25rem; }
+@media (max-width: 720px) { .art.attributes { gap: 8px; } .attr-text strong { font-size: 1rem; } }
+
+/* ---------- Pikmin: the ship's menus, cyan on deep teal, cut-corner tiles ---------- */
+body[data-mode="pikmin"] {
+  --bg: #0a2b42; --ink: #e8f8fc; --muted: #9fcbd8; --accent: #ffc933; --accent-2: #4fdcf0;
+  --card: #0f3a54; --line: #3fd4ea88; --panel: #0c3149; --radius: 0;
+  --head-font: 'M PLUS Rounded 1c', sans-serif; --body-font: 'M PLUS Rounded 1c', sans-serif; --body-size: 1.05rem;
+  --cut: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+  background:
+    radial-gradient(circle, #4fdcf026 1px, transparent 1.6px) 0 0 / 18px 18px,
+    linear-gradient(#0c3550, #08233a);
+  background-attachment: fixed;
+}
+body[data-mode="pikmin"] .bar { background: #08233a; border-bottom: 1px solid var(--accent-2); }
+body[data-mode="pikmin"] .brand { color: var(--accent-2); }
+body[data-mode="pikmin"] .modes a { font-weight: 700; border-radius: 999px; }
+body[data-mode="pikmin"] .modes a[aria-current] { color: #fff; background: #35aedb; border-color: transparent; }
+
+body[data-mode="pikmin"] .page-head {
+  display: grid; grid-template-columns: 1fr auto 1fr; grid-template-areas: "day title sun" "lineup lineup lineup";
+  align-items: center; margin-bottom: 18px;
+}
+body[data-mode="pikmin"] .page-head h1 { grid-area: title; color: var(--accent-2); font-weight: 800; }
+.sun-meter { grid-area: sun; justify-self: end; width: clamp(90px, 14vw, 170px); }
+.day-bubble { grid-area: day; justify-self: start; width: clamp(104px, 12vw, 146px); overflow: visible; filter: drop-shadow(0 3px 4px #0006); }
+.lineup { grid-area: lineup; list-style: none; display: flex; justify-content: center; align-items: flex-end; gap: clamp(0px, 1vw, 14px); margin: 10px 0 0; padding: 0 0 6px; border-bottom: 1px dashed var(--line); }
+.lineup li { flex: 0 1 100px; }
+.lineup img { display: block; width: 100%; height: clamp(56px, 11vh, 110px); object-fit: contain; object-position: bottom; filter: drop-shadow(0 4px 4px #0008); }
+
+body[data-mode="pikmin"] .grid { gap: 20px; }
+body[data-mode="pikmin"] .grid li { position: relative; }
+body[data-mode="pikmin"] .sign {
+  position: relative; aspect-ratio: 4 / 3; gap: 2px;
+  background: var(--accent-2); border: 0; outline: 0; box-shadow: none; clip-path: var(--cut);
+  transform: none; transition: none;
+}
+body[data-mode="pikmin"] .sign::before {
+  content: ''; position: absolute; inset: 1.5px; clip-path: var(--cut);
+  background: linear-gradient(160deg, #15506f, #0d3149);
+}
+body[data-mode="pikmin"] .sign:hover::before, body[data-mode="pikmin"] .sign:focus-visible::before { background: linear-gradient(160deg, #1c7295, #124a68); }
+body[data-mode="pikmin"] .sign > * { position: relative; }
+body[data-mode="pikmin"] .sign .glyph { color: var(--accent); text-shadow: none; }
+body[data-mode="pikmin"] .sign .name { margin-top: 8px; font-size: clamp(.95rem, 2vw, 1.2rem); font-weight: 800; }
+body[data-mode="pikmin"] .sign .dates { font-size: .78rem; }
+/* The yellow brackets on the selected tile */
+body[data-mode="pikmin"] .grid li::after {
+  content: ''; position: absolute; inset: -5px; pointer-events: none; opacity: 0;
+  background:
+    linear-gradient(var(--accent) 0 0) 0 0 / 26px 6px, linear-gradient(var(--accent) 0 0) 0 0 / 6px 26px,
+    linear-gradient(var(--accent) 0 0) 100% 100% / 26px 6px, linear-gradient(var(--accent) 0 0) 100% 100% / 6px 26px;
+  background-repeat: no-repeat;
+}
+body[data-mode="pikmin"] .grid li:hover::after, body[data-mode="pikmin"] .grid li:focus-within::after { opacity: 1; }
+
+body[data-mode="pikmin"] #reveal { background: #061b2ddd; backdrop-filter: none; }
+body[data-mode="pikmin"] .panel { outline: 0; border: 1px solid var(--accent-2); box-shadow: 0 20px 60px #000b; background-image: radial-gradient(circle, #4fdcf01c 1px, transparent 1.6px); background-size: 18px 18px; }
+body[data-mode="pikmin"] .content { flex: 1; padding-top: 16px; padding-bottom: 18px; }
+body[data-mode="pikmin"] .reading-head { justify-content: center; gap: 12px; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+body[data-mode="pikmin"] .reading-head .glyph { font-size: 2.2rem; color: var(--accent); }
+body[data-mode="pikmin"] .reading-head div { display: flex; align-items: baseline; gap: 12px; }
+body[data-mode="pikmin"] .reading-head h2 { font-size: 2rem; font-weight: 800; color: var(--accent-2); }
+body[data-mode="pikmin"] .attr-frame { background: var(--accent-2); clip-path: var(--cut); }
+body[data-mode="pikmin"] .attr-frame::before {
+  content: ''; position: absolute; inset: 1.5px; clip-path: var(--cut);
+  background: linear-gradient(160deg, #15506f, #0d3149);
+}
+body[data-mode="pikmin"] .attr-frame img { filter: drop-shadow(0 6px 6px #0009); }
+body[data-mode="pikmin"] .art small { color: var(--accent); }
+body[data-mode="pikmin"] .art strong { color: var(--accent-2); font-weight: 800; }
+body[data-mode="pikmin"] .art em { font-style: normal; }
+body[data-mode="pikmin"] .words h3 { color: var(--ink); font-weight: 800; }
+body[data-mode="pikmin"] .words .advice { font-style: normal; font-weight: 700; }
+/* Lucky values as the Piklopedia's data rows */
+body[data-mode="pikmin"] .lucky { grid-template-columns: repeat(2, 1fr); gap: 0 32px; border-top: 0; padding-top: 0; margin-top: 10px; }
+@media (max-width: 480px) { body[data-mode="pikmin"] .lucky { grid-template-columns: 1fr; } }
+body[data-mode="pikmin"] .lucky div { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 4px 0; border-bottom: 1px dashed var(--line); }
+body[data-mode="pikmin"] .lucky dt { text-transform: none; letter-spacing: 0; font-size: 1rem; color: var(--muted); }
+body[data-mode="pikmin"] .lucky dd { margin: 0; text-align: right; }
+/* The close button is the menu's sky-blue strip */
+body[data-mode="pikmin"] .close {
+  position: static; order: 2; flex: none; width: 100%; height: 44px; padding: 0 22px;
+  display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+  background: #35aedb; color: #fff; font-size: 0; font-weight: 700;
+}
+body[data-mode="pikmin"] .close::before { content: 'Esc'; font-size: .8rem; color: #0c3149; background: #fff; border-radius: 6px; padding: 1px 7px; }
+body[data-mode="pikmin"] .close::after { content: 'Close'; font-size: 1.05rem; }
+body[data-mode="pikmin"] .close:hover { background: #4fc4ec; color: #fff; }
+body[data-mode="pikmin"] .content::-webkit-scrollbar-thumb { background: var(--accent-2); border-color: var(--panel); }

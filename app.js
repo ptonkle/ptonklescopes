@@ -1,11 +1,17 @@
 import { DDRAGON, TFT_SET, CHAMPIONS, KEYSTONES, TRAITS } from './data.js';
 import { FACTORIO_ITEMS, FACTORIO_TECHS } from './factorio.js';
-import { SIGNS, LOL, TFT, FACTORIO } from './texts.js';
+import { PIKMIN_CREATURES, PIKMIN_TREASURES, PIKMIN_TYPES } from './pikmin.js';
+import { SIGNS, LOL, TFT, FACTORIO, PIKMIN } from './texts.js';
 
 const MODES = {
   league: { label: 'League of Legends', read: leagueReading },
   tft: { label: 'Teamfight Tactics', read: tftReading },
   factorio: { label: 'Factorio', read: factorioReading },
+  pikmin: {
+    label: 'Pikmin',
+    read: pikminReading,
+    head: () => `${dayBubble()}${sunMeter()}<ul class="lineup">${PIKMIN_TYPES.map((t) => `<li><img src="${esc(t.art)}" alt="${esc(t.name)}"></li>`).join('')}</ul>`,
+  },
 };
 const TEXT_GLYPH = '︎'; // keep zodiac glyphs as text, not emoji
 
@@ -130,6 +136,35 @@ function factorioReading(i) {
   };
 }
 
+function pikminReading(i) {
+  const sign = SIGNS[i];
+  const r = rng(`${dayKey()}|pikmin|${sign.key}`);
+  const creature = dailyDraw('pikmin', PIKMIN_CREATURES)[i];
+  const treasure = dailyDraw('pikmin-treasure', PIKMIN_TREASURES)[i];
+  const type = pick(r, PIKMIN_TYPES);
+  return {
+    headline: pick(r, PIKMIN.headlines),
+    lines: [
+      pick(r, PIKMIN.creature[creature.category]).replace('{creature}', creature.name),
+      pick(r, PIKMIN.treasure).replace('{treasure}', treasure.name),
+      pick(r, PIKMIN.type[type.name]),
+    ],
+    advice: pick(r, PIKMIN.wisdom),
+    lucky: [
+      ['Explore', pick(r, PIKMIN.areas)],
+      ['Avoid', pick(r, PIKMIN.avoid)],
+    ],
+    art: {
+      kind: 'attributes',
+      items: [
+        { label: 'Creature', name: creature.name, sub: creature.family ? `${creature.family} family` : 'Family unknown', src: creature.art },
+        { label: 'Treasure', name: treasure.name, src: treasure.art },
+        { label: 'Pikmin', name: type.name, sub: PIKMIN.traits[type.name], src: type.art },
+      ],
+    },
+  };
+}
+
 function tftReading(i) {
   const sign = SIGNS[i];
   const r = rng(`${dayKey()}|tft|${sign.key}`);
@@ -162,6 +197,67 @@ function tftReading(i) {
 
 // --- Rendering ---
 
+// Pikmin 2's day counter, counting the days of the year. The lettering is drawn
+// as tubes: blue shadow, chrome stroke, dark core.
+const TUBE_DIGITS = [
+  'M12 3C4 3 2 14 2 21C2 31 6 37 12 37C19 37 22 28 22 19C22 10 19 3 12 3Z',
+  'M7 9L13 3C13 14 12 26 12 37',
+  'M3 11C4 5 9 3 13 3C19 3 21 8 20 13C18 21 8 29 3 36C9 35 16 36 22 35',
+  'M4 7C8 2 18 2 19 9C20 15 14 18 9 19C16 19 22 23 21 29C20 37 8 39 3 33',
+  'M15 37L15 3C11 11 6 19 2 26C8 26 16 26 23 25',
+  'M20 4C15 4 10 4 6 5L5 17C10 14 19 15 21 23C22 32 12 39 3 33',
+  'M18 4C10 6 3 15 3 26C3 33 8 37 13 37C19 37 22 31 21 26C19 19 9 19 4 26',
+  'M3 5C9 4 16 4 22 4C17 13 12 25 10 37',
+  'M12 19C6 17 5 11 6 8C8 2 17 2 19 8C20 13 16 17 12 19C6 22 3 26 4 31C6 38 19 38 20 30C21 25 17 21 12 19Z',
+  'M20 13C18 19 8 20 5 13C3 6 10 2 14 3C20 4 21 10 20 14C19 24 16 31 11 37',
+];
+const TUBE_DAY = 'M6 6C4 14 5 24 6 32M4 6C18 2 30 8 30 18C30 28 18 33 5 32M54 16C46 12 38 16 38 24C38 31 48 33 54 24M54 14C53 20 54 27 57 32M66 14C67 21 71 26 76 26M86 12C80 24 72 36 62 44';
+
+function dayBubble(now = new Date()) {
+  const y = now.getFullYear();
+  const day = Math.round((Date.UTC(y, now.getMonth(), now.getDate()) - Date.UTC(y, 0, 0)) / 86400000);
+  const left = 60 - (String(day).length * 28) / 2 + 2;
+  const digits = [...String(day)].map((d, n) => `<path transform="translate(${left + n * 28} 68)" d="${TUBE_DIGITS[d]}"/>`).join('');
+  return `<svg class="day-bubble" viewBox="0 0 120 148" role="img" aria-label="Day ${day}">
+    <defs>
+      <radialGradient id="glass" cx=".5" cy=".42" r=".58"><stop offset=".55" stop-color="#fff" stop-opacity=".03"/><stop offset=".84" stop-color="#fff" stop-opacity=".1"/><stop offset="1" stop-color="#fff" stop-opacity=".55"/></radialGradient>
+      <radialGradient id="shine"><stop offset=".35" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+      <linearGradient id="chrome" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="#a4adb8"/><stop offset=".6" stop-color="#f4f7fa"/><stop offset="1" stop-color="#bcc4cd"/></linearGradient>
+      <filter id="soft"><feGaussianBlur stdDeviation="1.4"/></filter>
+      <g id="day-num" fill="none" stroke-linecap="round" stroke-linejoin="round">${digits}</g>
+      <g id="day-word" fill="none" stroke-linecap="round" stroke-linejoin="round"><path transform="translate(15 2)" d="${TUBE_DAY}"/></g>
+    </defs>
+    <circle cx="60" cy="90" r="55" fill="url(#glass)"/>
+    <circle cx="33" cy="58" r="15" fill="url(#shine)"/>
+    <path d="M29 51C37 49 44 43 48 35C49 45 45 55 37 62Z" fill="#fff" filter="url(#soft)"/>
+    <use href="#day-word" stroke="url(#chrome)" stroke-width="5.5"/>
+    <use href="#day-word" stroke="#3d4a56" stroke-width="1.6"/>
+    <use href="#day-num" x="3.5" y="4" stroke="#123a6e" stroke-width="9"/>
+    <use href="#day-num" x="3" y="3" stroke="#2f9fd8" stroke-width="5"/>
+    <use href="#day-num" stroke="url(#chrome)" stroke-width="8"/>
+    <use href="#day-num" stroke="#16263a" stroke-width="2.6"/>
+  </svg>`;
+}
+
+// The games' day meter: the hand sweeps from sunrise (6am) to sunset (6pm).
+function sunMeter(now = new Date()) {
+  const day = Math.min(1, Math.max(0, (now.getHours() + now.getMinutes() / 60 - 6) / 12));
+  const dots = [0, 1, 2, 3, 4, 5, 6].map((n) => {
+    const a = Math.PI * (1 - n / 6);
+    return `<circle cx="${60 + 40 * Math.cos(a)}" cy="${62 - 40 * Math.sin(a)}" r="2.6" fill="#fff"/>`;
+  }).join('');
+  const ray = (a) => `<path d="M60 44 L54 60 L66 60 Z" fill="#ffc933" transform="rotate(${a} 60 60)"/>`;
+  return `<svg class="sun-meter" viewBox="0 0 120 70" role="img" aria-label="Time of day">
+    <path d="M6 66 A54 54 0 0 1 114 66 Z" fill="url(#dial)" stroke="#c9d3da" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M60 62 L103 62 A43 43 0 0 0 97 40 Z" fill="#d81b52"/>
+    <defs><linearGradient id="dial" x1="0" x2="1"><stop offset="0" stop-color="#1c5f8c"/><stop offset="1" stop-color="#071d33"/></linearGradient></defs>
+    ${dots}
+    <path d="M60 58 L60 66 L104 62 Z" fill="#e8eef2" transform="rotate(${180 * (day - 1)} 60 62)"/>
+    ${[0, 45, 90, 135, 180, 225, 270, 315].map(ray).join('')}
+    <circle cx="60" cy="60" r="9" fill="#ffdf6b" stroke="#e8a21c" stroke-width="2"/>
+  </svg>`;
+}
+
 const $ = (sel, el = document) => el.querySelector(sel);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 const main = $('#main');
@@ -185,7 +281,7 @@ function renderPage() {
   main.innerHTML = `
     <div class="page-head">
       <h1>${esc(MODES[mode].label)}</h1>
-      <p class="dateline">${esc(date)}${sub ? ` <span class="sep">·</span> ${esc(sub)}` : ''}</p>
+      ${MODES[mode].head?.() ?? `<p class="dateline">${esc(date)}${sub ? ` <span class="sep">·</span> ${esc(sub)}` : ''}</p>`}
     </div>
     <ol class="grid">
       ${SIGNS.map((s, i) => `
@@ -199,7 +295,14 @@ function renderPage() {
 
 function readingHTML(sign, rd) {
   const a = rd.art;
-  const figure = a.kind === 'icon'
+  const figure = a.kind === 'attributes'
+    ? `<ul class="art attributes">${a.items.map((t) => `
+         <li>
+           <div class="attr-frame"><img src="${esc(t.src)}" alt="${esc(t.name)}"></div>
+           <div class="attr-text"><small>${esc(t.label)}</small><strong>${esc(t.name)}</strong>${t.sub ? `<em>${esc(t.sub)}</em>` : ''}</div>
+         </li>`).join('')}
+       </ul>`
+    : a.kind === 'icon'
     ? `<figure class="art icon">
          <div class="icon-frame"><img src="${esc(a.src)}" alt="${esc(a.name)}"></div>
          <figcaption><small>${esc(a.label)}</small><strong>${esc(a.name)}</strong><em>${esc(a.sub)}</em></figcaption>
